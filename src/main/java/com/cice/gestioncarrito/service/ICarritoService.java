@@ -47,7 +47,7 @@ public interface ICarritoService {
      *
      */
 
-    CarritoDTO mostrarCarrito(Long idCarrito);
+    CarritoDTO getCarrito(Long idCarrito);
 
     /**
      *  Le mando mi carrito a Pedidos

@@ -29,9 +29,9 @@ public class CarritoService implements ICarritoService {
     @Override
     public CarritoDTO crearCarrito(Long idUsuario) {
         CarritoDTO carritoDTO = null;
-        Optional<CarritoEntity> carritoEntityOptional = carritoRepository.findByIdUsuario(idUsuario);
+        Optional<CarritoEntity> carritoEntityOptional = carritoRepository.findByIdUsuario(idUsuario); //Busco si el id del usuario que me han pasado tiene ya un carrito
 
-        if(carritoEntityOptional.isPresent()) {
+        if(carritoEntityOptional.isPresent()) { //Entra si el usuario ya tenía un carrito
             CarritoEntity carritoEntityDesempaquetado = carritoEntityOptional.get();
             carritoDTO = carritoConverter.CarritoEntityToDTO(carritoEntityDesempaquetado);
         } else {
@@ -44,35 +44,27 @@ public class CarritoService implements ICarritoService {
     @Override
     public CarritoDTO anadirProducto(ProductoDTO productoDTO, Integer cantidad, Long idCarrito) {
         CarritoDTO carritoDTOSalida = null;
-        Optional<CarritoEntity> carritoEntityOptional = carritoRepository.findById(idCarrito);
-        if(carritoEntityOptional.isPresent()) {
+        Optional<CarritoEntity> carritoEntityOptional = carritoRepository.findById(idCarrito);//Encuentro el carrito que hay con el id que me están pasando
+        if(carritoEntityOptional.isPresent()) { //Si existe ese carrito, opero con él
             CarritoEntity carritoEntityDesempaquetado = carritoEntityOptional.get();
 
             List<ProductoEntity> listaProductosEntity = carritoEntityDesempaquetado.getProductos();
 
             ProductoEntity productoEntity = hayProducto(listaProductosEntity, productoDTO.getIdProducto());
 
-            if (productoEntity != null && productoEntity.getCantidad() > cantidad)
-                productoEntity.setCantidad(productoEntity.getCantidad() + cantidad);
-            else if (productoEntity == null) {
-                ProductoEntity nuevoProductoEntity = productoConverter.productoDTOToEntity(productoDTO);
-                carritoEntityDesempaquetado.getProductos().add(nuevoProductoEntity);
+            if (productoEntity != null && productoEntity.getCantidad() < cantidad)
+                productoEntity.setCantidad(cantidad);
+            else if (productoEntity == null) { //Si me devuelve un null, es que no hay de ese producto, así que lo tengo que añadir de cero
+                productoDTO.setCantidad(cantidad);
+                productoEntity = productoConverter.productoDTOToEntity(productoDTO);
+                carritoEntityDesempaquetado.getProductos().add(productoEntity);
 
                 carritoDTOSalida = carritoConverter.CarritoEntityToDTO(carritoEntityDesempaquetado);
-
             }
 
         }
         return carritoDTOSalida;
 
-    }
-
-    private ProductoEntity hayProducto(List<ProductoEntity> listaProductosEntity, Long idProducto) {
-        for(ProductoEntity productoEntity : listaProductosEntity) {
-            if(idProducto.equals(productoEntity.getId()))
-                return productoEntity;
-        }
-        return null;
     }
 
     @Override
@@ -87,32 +79,27 @@ public class CarritoService implements ICarritoService {
             List<ProductoEntity> listaProductosEntity = carritoEntityDesempaquetado.getProductos();
 
             ProductoEntity productoEntity = hayProducto(listaProductosEntity,idProducto);
+            if(productoEntity!= null) {
+                listaProductosEntity.remove(productoEntity);
 
-            listaProductosEntity.remove(productoEntity);
+                restarCantidades(productoEntity, cantidad);
 
-            restarCantidades(productoEntity,cantidad);
+                if (productoEntity.getCantidad() > 0)
+                    listaProductosEntity.add(productoEntity);
+                else
+                    listaProductosEntity.remove(productoEntity);
 
-            if(productoEntity.getCantidad() > 0)
-                listaProductosEntity.add(productoEntity);
+                carritoEntityDesempaquetado.setProductos(listaProductosEntity);
 
-            carritoEntityDesempaquetado.setProductos(listaProductosEntity);
-
-            carritoDTOSalida = carritoConverter.CarritoEntityToDTO(carritoEntityDesempaquetado);
-
+                carritoDTOSalida = carritoConverter.CarritoEntityToDTO(carritoEntityDesempaquetado);
+            }
         }
 
         return carritoDTOSalida;
     }
 
-    private void restarCantidades (ProductoEntity productoEntity, Integer cantidad) {
-        if(productoEntity.getCantidad()-cantidad > 0)
-            productoEntity.setCantidad(productoEntity.getCantidad()-cantidad);
-        else
-            productoEntity.setCantidad(0);
-    }
-
     @Override
-    public CarritoDTO mostrarCarrito(Long idCarrito) {
+    public CarritoDTO getCarrito(Long idCarrito) {
         CarritoDTO carritoDTOSalida = null;
 
         Optional<CarritoEntity> carritoEntityOptional = carritoRepository.findById(idCarrito);
@@ -151,15 +138,25 @@ public class CarritoService implements ICarritoService {
         return carritoDTOSalida;
     }
 
+    private void restarCantidades (ProductoEntity productoEntity, Integer cantidad) {
+        if(productoEntity.getCantidad()-cantidad > 0)
+            productoEntity.setCantidad(productoEntity.getCantidad()-cantidad);
+        else
+            productoEntity.setCantidad(0);
+    }
 
     private CarritoEntity crearNuevoCarrito(Long idUsuario) {
-        CarritoEntity carritoEntity = null;
-
-        carritoRepository.save(new CarritoEntity(idUsuario));
-
+        CarritoEntity carritoEntity = carritoRepository.save(new CarritoEntity(idUsuario));
         return carritoEntity;
     }
 
+    private ProductoEntity hayProducto(List<ProductoEntity> listaProductosEntity, Long idProducto) {
+        for(ProductoEntity productoEntity : listaProductosEntity) {
+            if(idProducto.equals(productoEntity.getId()))
+                return productoEntity;
+        }
+        return null;
+    }
 
 
 }
