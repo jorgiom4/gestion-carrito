@@ -19,6 +19,7 @@ public class CarritoEntity {
     @GeneratedValue(strategy= GenerationType.SEQUENCE,generator="seq")
     private Long id;
     @OneToMany
+    @JoinColumn(name="producto_id")
     private List<ProductoEntity> productos;
     private Long idUsuario;
 

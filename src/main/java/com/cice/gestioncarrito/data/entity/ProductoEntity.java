@@ -22,6 +22,9 @@ public class ProductoEntity {
     private String imagen;
     private String descripcion;
     private String nombre;
+    @ManyToOne
+    @JoinColumn(name="producto")
+    private CarritoEntity carritoEntity;
 
     public ProductoEntity(Integer cantidad, Double precio, String imagen, String descripcion, String nombre) {
         this.cantidad = cantidad;
