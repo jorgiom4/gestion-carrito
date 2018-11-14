@@ -18,6 +18,7 @@ public class CarritoEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.SEQUENCE,generator="seq")
     private Long id;
+    @OneToMany
     private List<ProductoEntity> productos;
     private Long idUsuario;
 

@@ -2,9 +2,11 @@ package com.cice.gestioncarrito.service.converter;
 
 import com.cice.gestioncarrito.data.entity.ProductoEntity;
 import com.cice.gestioncarrito.web.dto.ProductoDTO;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class ProductoConverter {
 
     public List<ProductoDTO> listarProductosDTO(List<ProductoEntity> listaProductos) {

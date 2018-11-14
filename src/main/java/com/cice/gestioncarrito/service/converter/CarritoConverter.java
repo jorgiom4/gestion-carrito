@@ -12,8 +12,6 @@ import java.util.List;
 @Component
 public class CarritoConverter {
 
-    //NECESITO QUE EN ALGÚN MOMENTO ME MANDEN Y DEVUELVA EL IDENTIFICADOR DEL CARRITO QUE ESTOY MANEJANDO
-
     @Autowired
     private ProductoConverter productoConverter;
 

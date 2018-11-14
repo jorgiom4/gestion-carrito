@@ -53,7 +53,7 @@ public class CarritoResource {
     }
 
     //Le mando mi carrito a Pedidos
-    public CarritoDTO cerrarCompra() {
+    private CarritoDTO cerrarCompra() {
         CarritoDTO carritoDTO = null;
 
         return carritoDTO;
